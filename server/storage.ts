@@ -1,38 +1,146 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
 
-// modify the interface with any CRUD methods
-// you might need
+import { db } from "./db";
+import { eq, like, desc, and } from "drizzle-orm";
+import { 
+  users, customers, transactions, sales,
+  type User, type InsertUser, 
+  type Customer, type InsertCustomer, 
+  type Transaction, type InsertTransaction, 
+  type Sale, type InsertSale 
+} from "@shared/schema";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
+  // User / Auth
+  getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, updates: Partial<InsertUser>): Promise<User>;
+
+  // Customers
+  getCustomers(userId: number, search?: string): Promise<Customer[]>;
+  getCustomer(id: number): Promise<Customer | undefined>;
+  createCustomer(customer: InsertCustomer & { userId: number }): Promise<Customer>;
+  deleteCustomer(id: number): Promise<void>;
+  updateCustomerBalance(id: number, amountChange: number): Promise<void>;
+
+  // Transactions
+  getTransactions(userId: number, customerId?: number): Promise<Transaction[]>;
+  createTransaction(transaction: InsertTransaction & { userId: number }): Promise<Transaction>;
+
+  // Sales
+  getSales(userId: number): Promise<Sale[]>;
+  createSale(sale: InsertSale & { userId: number }): Promise<Sale>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
-  }
-
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
+  }
+
+  async updateUser(id: number, updates: Partial<InsertUser>): Promise<User> {
+    const [user] = await db.update(users).set(updates).where(eq(users.id, id)).returning();
+    return user;
+  }
+
+  async getCustomers(userId: number, search?: string): Promise<Customer[]> {
+    if (search) {
+      return await db.select().from(customers).where(
+        and(
+          eq(customers.userId, userId),
+          like(customers.name, `%${search}%`)
+        )
+      );
+    }
+    return await db.select().from(customers).where(eq(customers.userId, userId));
+  }
+
+  async getCustomer(id: number): Promise<Customer | undefined> {
+    const [customer] = await db.select().from(customers).where(eq(customers.id, id));
+    return customer;
+  }
+
+  async createCustomer(customer: InsertCustomer & { userId: number }): Promise<Customer> {
+    const [newCustomer] = await db.insert(customers).values({
+      ...customer,
+      totalBalance: "0",
+      lastUpdated: new Date()
+    }).returning();
+    return newCustomer;
+  }
+
+  async deleteCustomer(id: number): Promise<void> {
+    await db.delete(customers).where(eq(customers.id, id));
+  }
+
+  async updateCustomerBalance(id: number, amountChange: number): Promise<void> {
+    const customer = await this.getCustomer(id);
+    if (!customer) return;
+    
+    // Convert to float for calculation then back to string/decimal
+    const currentBalance = parseFloat(customer.totalBalance);
+    const newBalance = currentBalance + amountChange;
+    
+    await db.update(customers)
+      .set({ 
+        totalBalance: newBalance.toFixed(2),
+        lastUpdated: new Date()
+      })
+      .where(eq(customers.id, id));
+  }
+
+  async getTransactions(userId: number, customerId?: number): Promise<Transaction[]> {
+    if (customerId) {
+      return await db.select().from(transactions).where(
+        and(
+          eq(transactions.userId, userId),
+          eq(transactions.customerId, customerId)
+        )
+      ).orderBy(desc(transactions.date));
+    }
+    return await db.select().from(transactions).where(eq(transactions.userId, userId)).orderBy(desc(transactions.date));
+  }
+
+  async createTransaction(transaction: InsertTransaction & { userId: number }): Promise<Transaction> {
+    const [newTx] = await db.insert(transactions).values({
+      ...transaction,
+      date: new Date()
+    }).returning();
+    
+    // Update customer balance logic
+    // 'give' = Udhar Diya (Balance increases)
+    // 'receive' = Wapas Mila (Balance decreases)
+    let amountChange = parseFloat(transaction.amount);
+    if (transaction.type === 'receive') {
+      amountChange = -amountChange;
+    }
+    
+    await this.updateCustomerBalance(transaction.customerId, amountChange);
+    
+    return newTx;
+  }
+
+  async getSales(userId: number): Promise<Sale[]> {
+    return await db.select().from(sales).where(eq(sales.userId, userId)).orderBy(desc(sales.date));
+  }
+
+  async createSale(sale: InsertSale & { userId: number }): Promise<Sale> {
+    const [newSale] = await db.insert(sales).values({
+      ...sale,
+      date: new Date()
+    }).returning();
+    return newSale;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
