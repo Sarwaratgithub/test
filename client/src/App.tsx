@@ -11,6 +11,7 @@ import HomePage from "@/pages/home";
 import CustomersPage from "@/pages/customers";
 import SalesPage from "@/pages/sales";
 import SettingsPage from "@/pages/settings";
+import CustomerLedgerPage from "@/pages/customer-ledger";
 import NotFound from "@/pages/not-found";
 
 function ProtectedRoute({ component: Component }: { component: () => JSX.Element }) {
@@ -45,6 +46,9 @@ function Router() {
       </Route>
       <Route path="/customers">
         <ProtectedRoute component={CustomersPage} />
+      </Route>
+      <Route path="/customers/:id">
+        <ProtectedRoute component={CustomerLedgerPage} />
       </Route>
       <Route path="/sales">
         <ProtectedRoute component={SalesPage} />

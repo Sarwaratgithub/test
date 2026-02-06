@@ -33,11 +33,15 @@ export default function SalesPage() {
   });
 
   const onSubmit = (data: z.infer<typeof saleFormSchema>) => {
+    console.log("Submitting sale data:", data);
     createSale.mutate(data, {
       onSuccess: () => {
         setIsDialogOpen(false);
         form.reset();
       },
+      onError: (error) => {
+        console.error("Sale recording failed:", error);
+      }
     });
   };
 
