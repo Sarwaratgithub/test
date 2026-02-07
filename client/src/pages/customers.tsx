@@ -136,7 +136,7 @@ export default function CustomersPage() {
                       <div>
                         <p className="text-xs text-muted-foreground">Balance</p>
                         <p className={`font-bold ${Number(customer.totalBalance) > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                          ₹{Number(customer.totalBalance).toLocaleString()}
+                          Rs.{Number(customer.totalBalance).toLocaleString()}
                         </p>
                       </div>
                       <ArrowRight className="h-4 w-4 text-gray-300" />

@@ -113,7 +113,7 @@ export default function CustomerDetailPage() {
           <CardContent className="p-6 text-center">
             <p className="text-muted-foreground text-sm font-medium mb-1">Net Balance</p>
             <h1 className={`text-4xl font-bold mb-4 ${Number(customer.totalBalance) > 0 ? 'text-red-600' : 'text-green-600'}`}>
-              ₹{Number(customer.totalBalance).toLocaleString()}
+              Rs.{Number(customer.totalBalance).toLocaleString()}
             </h1>
             {customer.phone && (
               <a href={`tel:${customer.phone}`} className="inline-flex items-center justify-center gap-2 text-sm bg-gray-100 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-200 transition-colors">
@@ -171,7 +171,7 @@ export default function CustomerDetailPage() {
                     </p>
                   </div>
                   <span className={`font-bold text-lg ${tx.type === 'give' ? 'text-red-600' : 'text-green-600'}`}>
-                    ₹{Number(tx.amount).toLocaleString()}
+                    Rs.{Number(tx.amount).toLocaleString()}
                   </span>
                 </div>
               ))
@@ -194,7 +194,7 @@ export default function CustomerDetailPage() {
                   name="amount"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Amount (₹)</FormLabel>
+                      <FormLabel>Amount (Rs.)</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 

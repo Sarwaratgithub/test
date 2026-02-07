@@ -29,7 +29,7 @@ export function useCreateSale() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: [api.sales.list.path] });
-      toast({ title: `Sale Recorded: ₹${variables.amount}` });
+      toast({ title: `Sale Recorded: Rs.${variables.amount}` });
     },
   });
 }

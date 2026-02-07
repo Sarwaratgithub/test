@@ -81,7 +81,7 @@ export default function CustomerLedgerPage() {
           <Card className="bg-red-50 border-red-100 shadow-sm">
             <CardContent className="p-4">
               <p className="text-xs font-bold text-red-600 uppercase mb-1">Total Udhar</p>
-              <h3 className="text-2xl font-black text-red-700">₹{Number(customer.totalBalance).toLocaleString()}</h3>
+              <h3 className="text-2xl font-black text-red-700">Rs.{Number(customer.totalBalance).toLocaleString()}</h3>
             </CardContent>
           </Card>
 
@@ -135,7 +135,7 @@ export default function CustomerLedgerPage() {
                     name="amount"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Amount (₹)</FormLabel>
+                        <FormLabel>Amount (Rs.)</FormLabel>
                         <FormControl>
                           <Input type="number" className="text-2xl h-14 font-bold" {...field} />
                         </FormControl>
@@ -191,7 +191,7 @@ export default function CustomerLedgerPage() {
                   </div>
                   <div className="text-right">
                     <p className={`font-bold ${tx.type === 'give' ? 'text-red-600' : 'text-green-600'}`}>
-                      {tx.type === 'give' ? '+' : '-'}₹{Number(tx.amount).toLocaleString()}
+                      {tx.type === 'give' ? '+' : '-'}Rs.{Number(tx.amount).toLocaleString()}
                     </p>
                     <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">
                       {tx.type === 'give' ? 'Debit' : 'Credit'}

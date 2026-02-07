@@ -43,7 +43,7 @@ export default function HomePage() {
               <div>
                 <p className="text-sm font-medium text-green-100">Total Sales</p>
                 <h3 className="text-2xl font-bold mt-1">
-                  ₹{salesLoading ? "..." : todaysSales.toLocaleString()}
+                  Rs.{salesLoading ? "..." : todaysSales.toLocaleString()}
                 </h3>
               </div>
             </CardContent>
@@ -59,7 +59,7 @@ export default function HomePage() {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Market Udhar</p>
                 <h3 className="text-2xl font-bold mt-1 text-red-600">
-                  ₹{customersLoading ? "..." : totalUdhar.toLocaleString()}
+                  Rs.{customersLoading ? "..." : totalUdhar.toLocaleString()}
                 </h3>
               </div>
             </CardContent>
@@ -112,7 +112,7 @@ export default function HomePage() {
                     </p>
                   </div>
                   <span className="font-bold text-green-600">
-                    +₹{Number(sale.amount).toLocaleString()}
+                    +Rs.{Number(sale.amount).toLocaleString()}
                   </span>
                 </div>
               ))

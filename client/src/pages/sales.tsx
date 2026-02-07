@@ -81,7 +81,7 @@ export default function SalesPage() {
                     name="amount"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Amount (₹)</FormLabel>
+                        <FormLabel>Amount (Rs.)</FormLabel>
                         <FormControl>
                           <Input type="number" className="text-2xl h-14 font-bold" placeholder="0" {...field} />
                         </FormControl>
@@ -119,7 +119,7 @@ export default function SalesPage() {
                 <Calendar className="h-4 w-4" />
                 Today's Total
               </p>
-              <h2 className="text-3xl font-bold">₹{totalToday.toLocaleString()}</h2>
+              <h2 className="text-3xl font-bold">Rs.{totalToday.toLocaleString()}</h2>
             </div>
             <div className="bg-white/10 p-3 rounded-full">
               <Banknote className="h-8 w-8 text-green-400" />
@@ -148,7 +148,7 @@ export default function SalesPage() {
                   </p>
                 </div>
                 <span className="font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100">
-                  +₹{Number(sale.amount).toLocaleString()}
+                  +Rs.{Number(sale.amount).toLocaleString()}
                 </span>
               </div>
             ))

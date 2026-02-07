@@ -45,7 +45,7 @@ export function useCreateTransaction() {
       queryClient.invalidateQueries({ queryKey: ["/api/customers"] });
       
       const typeText = variables.type === 'give' ? "Udhar Diya" : "Wapas Mila";
-      toast({ title: `${typeText}: ₹${variables.amount}` });
+      toast({ title: `${typeText}: Rs.${variables.amount}` });
     },
   });
 }
