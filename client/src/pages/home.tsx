@@ -30,35 +30,41 @@ export default function HomePage() {
         
         {/* Quick Stats Grid */}
         <div className="grid grid-cols-2 gap-4">
-          <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white border-none shadow-lg shadow-green-500/20">
-            <CardContent className="p-4 flex flex-col justify-between h-32">
+          <Card className="primary-gradient border-none card-3d overflow-hidden">
+            <CardContent className="p-4 flex flex-col justify-between h-32 relative">
+              <div className="absolute top-0 right-0 p-8 opacity-10 transform translate-x-4 -translate-y-4">
+                <TrendingUp size={80} />
+              </div>
               <div className="flex justify-between items-start">
-                <div className="p-2 bg-white/20 rounded-lg">
+                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
                   <TrendingUp className="h-5 w-5" />
                 </div>
-                <span className="text-xs font-medium bg-white/20 px-2 py-1 rounded-full">
+                <span className="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
                   Today
                 </span>
               </div>
               <div>
-                <p className="text-sm font-medium text-green-100">Total Sales</p>
-                <h3 className="text-2xl font-bold mt-1">
+                <p className="text-xs font-bold text-green-100 uppercase tracking-tighter">Total Sales</p>
+                <h3 className="text-2xl font-black mt-1">
                   Rs.{salesLoading ? "..." : todaysSales.toLocaleString()}
                 </h3>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white border border-red-100 shadow-sm">
-            <CardContent className="p-4 flex flex-col justify-between h-32">
+          <Card className="bg-white border-none card-3d overflow-hidden">
+            <CardContent className="p-4 flex flex-col justify-between h-32 relative">
+              <div className="absolute top-0 right-0 p-8 opacity-5 transform translate-x-4 -translate-y-4 text-red-600">
+                <Users size={80} />
+              </div>
               <div className="flex justify-between items-start">
-                <div className="p-2 bg-red-50 text-red-600 rounded-lg">
+                <div className="p-2 bg-red-50 text-red-600 rounded-xl">
                   <Users className="h-5 w-5" />
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Market Udhar</p>
-                <h3 className="text-2xl font-bold mt-1 text-red-600">
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-tighter">Market Udhar</p>
+                <h3 className="text-2xl font-black mt-1 text-red-600">
                   Rs.{customersLoading ? "..." : totalUdhar.toLocaleString()}
                 </h3>
               </div>
@@ -67,17 +73,17 @@ export default function HomePage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           <Link href="/sales">
-            <Button size="lg" className="w-full h-14 text-base bg-white text-foreground border shadow-sm hover:bg-gray-50 flex gap-2">
-              <Plus className="h-5 w-5 text-primary" />
-              Add Sale
+            <Button size="lg" className="w-full h-16 text-base bg-white text-foreground border-none shadow-3d hover:bg-gray-50 flex flex-col items-center justify-center gap-0 btn-3d rounded-2xl">
+              <Plus className="h-5 w-5 text-primary mb-1" />
+              <span className="font-bold text-xs uppercase">Add Sale</span>
             </Button>
           </Link>
           <Link href="/customers">
-            <Button size="lg" className="w-full h-14 text-base bg-primary text-primary-foreground shadow-md shadow-primary/20 flex gap-2">
-              <Plus className="h-5 w-5" />
-              New Khata
+            <Button size="lg" className="w-full h-16 text-base bg-primary text-primary-foreground border-none shadow-3d flex flex-col items-center justify-center gap-0 btn-3d rounded-2xl">
+              <Plus className="h-5 w-5 mb-1" />
+              <span className="font-bold text-xs uppercase">New Khata</span>
             </Button>
           </Link>
         </div>

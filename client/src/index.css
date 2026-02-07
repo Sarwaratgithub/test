@@ -97,4 +97,20 @@
   .primary-gradient {
     @apply bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg shadow-green-600/20;
   }
+  .shadow-3d {
+    box-shadow: 0 4px 0 0 hsl(var(--primary) / 0.2), 0 8px 16px -4px hsl(var(--primary) / 0.1);
+  }
+  .card-3d {
+    @apply transition-all duration-200;
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1), 0 8px 8px -5px rgba(0, 0, 0, 0.04);
+    border-bottom: 4px solid rgba(0, 0, 0, 0.05);
+  }
+  .card-3d:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  .btn-3d {
+    @apply transition-all active:translate-y-1 active:shadow-none;
+    box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.1);
+  }
 }
