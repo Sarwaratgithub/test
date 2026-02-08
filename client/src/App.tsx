@@ -11,6 +11,7 @@ import HomePage from "@/pages/home";
 import CustomersPage from "@/pages/customers";
 import SalesPage from "@/pages/sales";
 import SettingsPage from "@/pages/settings";
+import LedgerPage from "@/pages/ledger";
 import CustomerLedgerPage from "@/pages/customer-ledger";
 import NotFound from "@/pages/not-found";
 
@@ -52,6 +53,9 @@ function Router() {
       </Route>
       <Route path="/sales">
         <ProtectedRoute component={SalesPage} />
+      </Route>
+      <Route path="/ledger">
+        <ProtectedRoute component={LedgerPage} />
       </Route>
       <Route path="/settings">
         <ProtectedRoute component={SettingsPage} />

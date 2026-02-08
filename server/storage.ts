@@ -6,7 +6,9 @@ import {
   type User, type InsertUser, 
   type Customer, type InsertCustomer, 
   type Transaction, type InsertTransaction, 
-  type Sale, type InsertSale 
+  type Sale, type InsertSale,
+  type Purchase, type InsertPurchase,
+  type Expense, type InsertExpense 
 } from "@shared/schema";
 
 export interface IStorage {
@@ -30,6 +32,14 @@ export interface IStorage {
   // Sales
   getSales(userId: number): Promise<Sale[]>;
   createSale(sale: InsertSale & { userId: number }): Promise<Sale>;
+
+  // Purchases
+  getPurchases(userId: number): Promise<Purchase[]>;
+  createPurchase(purchase: InsertPurchase & { userId: number }): Promise<Purchase>;
+
+  // Expenses
+  getExpenses(userId: number): Promise<Expense[]>;
+  createExpense(expense: InsertExpense & { userId: number }): Promise<Expense>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -140,6 +150,30 @@ export class DatabaseStorage implements IStorage {
       date: new Date()
     }).returning();
     return newSale;
+  }
+
+  async getPurchases(userId: number): Promise<Purchase[]> {
+    return await db.select().from(purchases).where(eq(purchases.userId, userId)).orderBy(desc(purchases.date));
+  }
+
+  async createPurchase(purchase: InsertPurchase & { userId: number }): Promise<Purchase> {
+    const [newPurchase] = await db.insert(purchases).values({
+      ...purchase,
+      date: new Date()
+    }).returning();
+    return newPurchase;
+  }
+
+  async getExpenses(userId: number): Promise<Expense[]> {
+    return await db.select().from(expenses).where(eq(expenses.userId, userId)).orderBy(desc(expenses.date));
+  }
+
+  async createExpense(expense: InsertExpense & { userId: number }): Promise<Expense> {
+    const [newExpense] = await db.insert(expenses).values({
+      ...expense,
+      date: new Date()
+    }).returning();
+    return newExpense;
   }
 }
 

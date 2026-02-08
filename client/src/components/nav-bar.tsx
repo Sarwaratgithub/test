@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { Home, Users, Banknote, Settings, LogOut, Store } from "lucide-react";
+import { Home, Users, Banknote, Settings, LogOut, Store, ReceiptText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function NavBar() {
@@ -54,6 +54,11 @@ export function NavBar() {
           <Link href="/sales" className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${isActive('/sales') ? 'text-primary' : 'text-muted-foreground hover:text-gray-600'}`}>
             <Banknote className={`h-6 w-6 ${isActive('/sales') ? 'fill-current' : ''}`} />
             <span className="text-[10px] font-medium">Sales</span>
+          </Link>
+
+          <Link href="/ledger" className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${isActive('/ledger') ? 'text-primary' : 'text-muted-foreground hover:text-gray-600'}`}>
+            <ReceiptText className={`h-6 w-6 ${isActive('/ledger') ? 'fill-current' : ''}`} />
+            <span className="text-[10px] font-medium">Ledger</span>
           </Link>
 
           <Link href="/settings" className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${isActive('/settings') ? 'text-primary' : 'text-muted-foreground hover:text-gray-600'}`}>

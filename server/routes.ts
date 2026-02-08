@@ -135,6 +135,46 @@ export async function registerRoutes(
       throw err;
     }
   });
+
+  // === Purchases ===
+  app.get("/api/purchases", requireAuth, async (req, res) => {
+    const purchases = await storage.getPurchases(req.user!.id);
+    res.json(purchases);
+  });
+
+  app.post("/api/purchases", requireAuth, async (req, res) => {
+    const saleSchema = z.object({
+      supplierName: z.string(),
+      amount: z.string(),
+      description: z.string().optional(),
+    });
+    const input = saleSchema.parse(req.body);
+    const purchase = await storage.createPurchase({
+      ...input,
+      userId: req.user!.id
+    });
+    res.status(201).json(purchase);
+  });
+
+  // === Expenses ===
+  app.get("/api/expenses", requireAuth, async (req, res) => {
+    const expenses = await storage.getExpenses(req.user!.id);
+    res.json(expenses);
+  });
+
+  app.post("/api/expenses", requireAuth, async (req, res) => {
+    const expenseSchema = z.object({
+      category: z.string(),
+      amount: z.string(),
+      description: z.string().optional(),
+    });
+    const input = expenseSchema.parse(req.body);
+    const expense = await storage.createExpense({
+      ...input,
+      userId: req.user!.id
+    });
+    res.status(201).json(expense);
+  });
   
   // === Profile Update ===
   app.put(api.auth.updateProfile.path, requireAuth, async (req, res) => {

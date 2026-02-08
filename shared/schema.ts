@@ -43,6 +43,24 @@ export const sales = pgTable("sales", {
   date: timestamp("date").defaultNow(),
 });
 
+export const purchases = pgTable("purchases", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  supplierName: text("supplier_name").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  description: text("description"),
+  date: timestamp("date").defaultNow(),
+});
+
+export const expenses = pgTable("expenses", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  category: text("category").notNull(), 
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  description: text("description"),
+  date: timestamp("date").defaultNow(),
+});
+
 // === RELATIONS ===
 
 export const customersRelations = relations(customers, ({ one, many }) => ({
@@ -67,6 +85,20 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
 export const salesRelations = relations(sales, ({ one }) => ({
   user: one(users, {
     fields: [sales.userId],
+    references: [users.id],
+  }),
+}));
+
+export const purchasesRelations = relations(purchases, ({ one }) => ({
+  user: one(users, {
+    fields: [purchases.userId],
+    references: [users.id],
+  }),
+}));
+
+export const expensesRelations = relations(expenses, ({ one }) => ({
+  user: one(users, {
+    fields: [expenses.userId],
     references: [users.id],
   }),
 }));
@@ -103,6 +135,22 @@ export const insertSaleSchema = createInsertSchema(sales, {
   date: true 
 });
 
+export const insertPurchaseSchema = createInsertSchema(purchases, {
+  amount: z.preprocess((val) => String(val), z.string()),
+}).omit({ 
+  id: true, 
+  userId: true,
+  date: true 
+});
+
+export const insertExpenseSchema = createInsertSchema(expenses, {
+  amount: z.preprocess((val) => String(val), z.string()),
+}).omit({ 
+  id: true, 
+  userId: true,
+  date: true 
+});
+
 // === TYPES ===
 
 export type User = typeof users.$inferSelect;
@@ -116,6 +164,12 @@ export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
 
 export type Sale = typeof sales.$inferSelect;
 export type InsertSale = z.infer<typeof insertSaleSchema>;
+
+export type Purchase = typeof purchases.$inferSelect;
+export type InsertPurchase = z.infer<typeof insertPurchaseSchema>;
+
+export type Expense = typeof expenses.$inferSelect;
+export type InsertExpense = z.infer<typeof insertExpenseSchema>;
 
 // Request/Response Types
 export type LoginRequest = { username: string; password: string };

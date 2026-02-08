@@ -4,7 +4,7 @@ import { useSales } from "@/hooks/use-sales";
 import { useCustomers } from "@/hooks/use-customers";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, ArrowRight, TrendingUp, Users } from "lucide-react";
+import { Plus, ArrowRight, TrendingUp, Users, ReceiptText } from "lucide-react";
 import { Link } from "wouter";
 import { format } from "date-fns";
 
@@ -73,17 +73,23 @@ export default function HomePage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <Link href="/sales">
             <Button size="lg" className="w-full h-16 text-base bg-white text-foreground border-none shadow-3d hover:bg-gray-50 flex flex-col items-center justify-center gap-0 btn-3d rounded-2xl">
               <Plus className="h-5 w-5 text-primary mb-1" />
-              <span className="font-bold text-xs uppercase">Add Sale</span>
+              <span className="font-bold text-[10px] uppercase">Sale</span>
             </Button>
           </Link>
           <Link href="/customers">
             <Button size="lg" className="w-full h-16 text-base bg-primary text-primary-foreground border-none shadow-3d flex flex-col items-center justify-center gap-0 btn-3d rounded-2xl">
               <Plus className="h-5 w-5 mb-1" />
-              <span className="font-bold text-xs uppercase">New Khata</span>
+              <span className="font-bold text-[10px] uppercase">Khata</span>
+            </Button>
+          </Link>
+          <Link href="/ledger">
+            <Button size="lg" className="w-full h-16 text-base bg-white text-foreground border-none shadow-3d hover:bg-gray-50 flex flex-col items-center justify-center gap-0 btn-3d rounded-2xl">
+              <ReceiptText className="h-5 w-5 text-primary mb-1" />
+              <span className="font-bold text-[10px] uppercase">Ledger</span>
             </Button>
           </Link>
         </div>
