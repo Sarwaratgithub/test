@@ -39,7 +39,7 @@ export const sales = pgTable("sales", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  type: text("type").notNull().default("cash_sale"), // 'cash_sale' or 'cash_in'
+  type: text("type").notNull().default("cash_sale"), // 'cash_sale' or 'cash_in_hand'
   description: text("description"),
   date: timestamp("date").defaultNow(),
 });

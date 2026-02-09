@@ -16,8 +16,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 // Custom schema to handle string->number coercion for amount
 const saleFormSchema = z.object({
-  amount: z.coerce.number().min(1, "Amount must be at least 1"),
-  type: z.enum(["cash_sale", "cash_in"]),
+  amount: z.coerce.string().min(1, "Amount is required"),
+  type: z.enum(["cash_sale", "cash_in_hand"]),
   description: z.string().optional(),
   date: z.string(),
 });
@@ -31,7 +31,7 @@ export default function SalesPage() {
   const form = useForm<z.infer<typeof saleFormSchema>>({
     resolver: zodResolver(saleFormSchema),
     defaultValues: {
-      amount: 0,
+      amount: "",
       type: "cash_sale",
       description: "",
       date: format(new Date(), "yyyy-MM-dd"),
@@ -39,15 +39,11 @@ export default function SalesPage() {
   });
 
   const onSubmit = (data: z.infer<typeof saleFormSchema>) => {
-    const submitData = {
-      ...data,
-      amount: String(data.amount),
-    };
-    createSale.mutate(submitData, {
+    createSale.mutate(data, {
       onSuccess: () => {
         setIsDialogOpen(false);
         form.reset({
-          amount: 0,
+          amount: "",
           type: "cash_sale",
           description: "",
           date: format(new Date(), "yyyy-MM-dd"),
@@ -101,7 +97,7 @@ export default function SalesPage() {
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="cash_sale">Daily Cash Sale</SelectItem>
-                            <SelectItem value="cash_in">Other Cash In</SelectItem>
+                            <SelectItem value="cash_in_hand">Cash In Hand</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -204,19 +200,19 @@ export default function SalesPage() {
             selectedSales.map((sale) => (
               <div key={sale.id} className="bg-white p-4 rounded-xl border shadow-sm flex items-center justify-between animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${sale.type === 'cash_in' ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'}`}>
+                  <div className={`p-2 rounded-lg ${sale.type === 'cash_in_hand' ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'}`}>
                     <Banknote className="h-5 w-5" />
                   </div>
                   <div>
                     <p className="font-bold text-gray-900 leading-none mb-1">
-                      {sale.description || (sale.type === 'cash_in' ? "Cash In" : "Cash Sale")}
+                      {sale.description || (sale.type === 'cash_in_hand' ? "Cash In Hand" : "Cash Sale")}
                     </p>
                     <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">
-                      {sale.type === 'cash_in' ? "Cash In" : "Daily Sale"} • {sale.date ? format(new Date(sale.date), "h:mm a") : "N/A"}
+                      {sale.type === 'cash_in_hand' ? "Cash In Hand" : "Daily Sale"} • {sale.date ? format(new Date(sale.date), "h:mm a") : "N/A"}
                     </p>
                   </div>
                 </div>
-                <span className={`font-black ${sale.type === 'cash_in' ? 'text-blue-600' : 'text-green-600'}`}>
+                <span className={`font-black ${sale.type === 'cash_in_hand' ? 'text-blue-600' : 'text-green-600'}`}>
                   +Rs.{Number(sale.amount).toLocaleString()}
                 </span>
               </div>

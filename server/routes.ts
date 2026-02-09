@@ -124,7 +124,7 @@ export async function registerRoutes(
     try {
       const saleSchema = z.object({
         amount: z.string(),
-        type: z.enum(["cash_sale", "cash_in"]),
+        type: z.enum(["cash_sale", "cash_in_hand"]),
         description: z.string().optional(),
         date: z.string().optional().transform(v => v ? new Date(v) : new Date()),
       });
