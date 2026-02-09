@@ -39,6 +39,7 @@ export const sales = pgTable("sales", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  type: text("type").notNull().default("cash_sale"), // 'cash_sale' or 'cash_in'
   description: text("description"),
   date: timestamp("date").defaultNow(),
 });
@@ -129,10 +130,10 @@ export const insertTransactionSchema = createInsertSchema(transactions, {
 
 export const insertSaleSchema = createInsertSchema(sales, {
   amount: z.preprocess((val) => String(val), z.string()),
+  date: z.preprocess((val) => val ? new Date(val as string) : new Date(), z.date()),
 }).omit({ 
   id: true, 
   userId: true,
-  date: true 
 });
 
 export const insertPurchaseSchema = createInsertSchema(purchases, {

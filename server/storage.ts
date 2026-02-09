@@ -147,7 +147,7 @@ export class DatabaseStorage implements IStorage {
   async createSale(sale: InsertSale & { userId: number }): Promise<Sale> {
     const [newSale] = await db.insert(sales).values({
       ...sale,
-      date: new Date()
+      date: sale.date || new Date()
     }).returning();
     return newSale;
   }

@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, ArrowRight, TrendingUp, Users, ReceiptText } from "lucide-react";
 import { Link } from "wouter";
-import { format } from "date-fns";
+import { format, isSameDay } from "date-fns";
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -14,11 +14,11 @@ export default function HomePage() {
   const { data: customers, isLoading: customersLoading } = useCustomers();
 
   // Calculate stats
-  const today = new Date().toISOString().split('T')[0];
+  const selectedSales = sales?.filter(s => 
+    isSameDay(new Date(s.date!), new Date())
+  ) || [];
   
-  const todaysSales = sales?.filter(s => 
-    new Date(s.date!).toISOString().split('T')[0] === today
-  ).reduce((sum, s) => sum + Number(s.amount), 0) || 0;
+  const todaysSalesTotal = selectedSales.reduce((sum, s) => sum + Number(s.amount), 0);
 
   const totalUdhar = customers?.reduce((sum, c) => sum + Number(c.totalBalance), 0) || 0;
 
@@ -46,7 +46,7 @@ export default function HomePage() {
               <div>
                 <p className="text-xs font-bold text-green-100 uppercase tracking-tighter">Total Sales</p>
                 <h3 className="text-2xl font-black mt-1">
-                  Rs.{salesLoading ? "..." : todaysSales.toLocaleString()}
+                  Rs.{salesLoading ? "..." : todaysSalesTotal.toLocaleString()}
                 </h3>
               </div>
             </CardContent>
