@@ -124,7 +124,13 @@ export default function SalesPage() {
                       <FormItem>
                         <FormLabel>Amount (Rs.)</FormLabel>
                         <FormControl>
-                          <Input type="number" className="text-2xl h-14 font-bold" placeholder="0" {...field} />
+                          <Input 
+                            type="number" 
+                            className="text-2xl h-14 font-bold" 
+                            placeholder="0" 
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value)} 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

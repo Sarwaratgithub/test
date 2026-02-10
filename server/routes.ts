@@ -123,7 +123,7 @@ export async function registerRoutes(
   app.post(api.sales.create.path, requireAuth, async (req, res) => {
     try {
       const saleSchema = z.object({
-        amount: z.string(),
+        amount: z.coerce.string(),
         type: z.enum(["cash_sale", "cash_in_hand"]),
         description: z.string().optional(),
         date: z.string().optional().transform(v => v ? new Date(v) : new Date()),
