@@ -72,7 +72,7 @@ export default function SalesPage() {
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" className="bg-green-600 hover:bg-green-700 shadow-3d btn-3d rounded-xl px-4 py-6">
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 shadow-3d btn-3d rounded-xl px-4 py-6 text-white">
                 <Plus className="h-5 w-5 mr-2" />
                 Add Entry
               </Button>
@@ -149,7 +149,7 @@ export default function SalesPage() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full h-12 text-lg bg-green-600 hover:bg-green-700" disabled={createSale.isPending}>
+                  <Button type="submit" className="w-full h-12 text-lg bg-blue-600 hover:bg-blue-700 text-white" disabled={createSale.isPending}>
                     {createSale.isPending ? "Recording..." : "Save Entry"}
                   </Button>
                 </form>
@@ -159,18 +159,18 @@ export default function SalesPage() {
         </div>
 
         {/* Date Selector */}
-        <div className="flex items-center justify-between bg-white p-2 rounded-2xl shadow-sm border">
-          <Button variant="ghost" size="icon" onClick={prevDay}>
-            <ArrowLeft className="h-5 w-5" />
+        <div className="flex items-center justify-between bg-white dark:bg-slate-900 p-3 rounded-[2rem] shadow-3d border-none card-3d no-default-hover-elevate">
+          <Button variant="ghost" size="icon" onClick={prevDay} className="h-12 w-12 rounded-2xl hover:bg-primary/10 hover:text-primary transition-all">
+            <ArrowLeft className="h-6 w-6" />
           </Button>
           <div className="text-center">
-            <p className="text-xs font-bold text-primary uppercase tracking-widest">
-              {isSameDay(viewDate, new Date()) ? "Today" : format(viewDate, "EEEE")}
+            <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-0.5">
+              {isSameDay(viewDate, new Date()) ? "TODAY" : format(viewDate, "EEEE").toUpperCase()}
             </p>
-            <p className="font-heading font-bold">{format(viewDate, "dd MMM yyyy")}</p>
+            <p className="font-heading font-black text-xl tracking-tight">{format(viewDate, "dd MMM yyyy")}</p>
           </div>
-          <Button variant="ghost" size="icon" onClick={nextDay} disabled={isSameDay(viewDate, new Date())}>
-            <ArrowRight className="h-5 w-5" />
+          <Button variant="ghost" size="icon" onClick={nextDay} disabled={isSameDay(viewDate, new Date())} className="h-12 w-12 rounded-2xl hover:bg-primary/10 hover:text-primary transition-all disabled:opacity-20">
+            <ArrowRight className="h-6 w-6" />
           </Button>
         </div>
 
@@ -204,21 +204,22 @@ export default function SalesPage() {
             </div>
           ) : (
             selectedSales.map((sale) => (
-              <div key={sale.id} className="bg-white p-4 rounded-xl border shadow-sm flex items-center justify-between animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${sale.type === 'cash_in_hand' ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'}`}>
-                    <Banknote className="h-5 w-5" />
+              <div key={sale.id} className="card-3d bg-white dark:bg-slate-900 p-5 border-none flex items-center justify-between group overflow-hidden relative">
+                <div className={`absolute left-0 top-0 bottom-0 w-1 ${sale.type === 'cash_in_hand' ? 'bg-blue-500' : 'bg-indigo-500'}`} />
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 rounded-2xl shadow-inner ${sale.type === 'cash_in_hand' ? 'bg-blue-50 text-blue-600' : 'bg-indigo-50 text-indigo-600'}`}>
+                    <Banknote className="h-6 w-6" />
                   </div>
                   <div>
-                    <p className="font-bold text-gray-900 leading-none mb-1">
-                      {sale.description || (sale.type === 'cash_in_hand' ? "Cash In Hand" : "Cash Sale")}
+                    <p className="font-black text-gray-900 dark:text-white text-lg leading-none mb-1.5">
+                      {sale.description || (sale.type === 'cash_in_hand' ? "Cash In Hand" : "Daily Sale")}
                     </p>
-                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">
-                      {sale.type === 'cash_in_hand' ? "Cash In Hand" : "Daily Sale"} • {sale.date ? format(new Date(sale.date), "h:mm a") : "N/A"}
+                    <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">
+                      {sale.type === 'cash_in_hand' ? "Cash In Hand" : "Daily Cash Sale"} • {sale.date ? format(new Date(sale.date), "h:mm a") : "N/A"}
                     </p>
                   </div>
                 </div>
-                <span className={`font-black ${sale.type === 'cash_in_hand' ? 'text-blue-600' : 'text-green-600'}`}>
+                <span className={`text-xl font-black ${sale.type === 'cash_in_hand' ? 'text-blue-600' : 'text-indigo-600'}`}>
                   +Rs.{Number(sale.amount).toLocaleString()}
                 </span>
               </div>

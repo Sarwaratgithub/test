@@ -30,7 +30,7 @@ export default function HomePage() {
         
         {/* Quick Stats Grid */}
         <div className="grid grid-cols-2 gap-4">
-          <Card className="primary-gradient border-none card-3d overflow-hidden ring-4 ring-green-500/20">
+          <Card className="primary-gradient border-none card-3d overflow-hidden ring-4 ring-blue-500/20">
             <CardContent className="p-5 flex flex-col justify-between h-40 relative">
               <div className="absolute top-0 right-0 p-8 opacity-20 transform rotate-12 translate-x-4 -translate-y-4">
                 <TrendingUp size={100} />
@@ -44,7 +44,7 @@ export default function HomePage() {
                 </span>
               </div>
               <div>
-                <p className="text-xs font-black text-green-100 uppercase tracking-widest opacity-80">Total Sales</p>
+                <p className="text-xs font-black text-blue-100 uppercase tracking-widest opacity-80">Total Sales</p>
                 <h3 className="text-3xl font-black mt-1 drop-shadow-md">
                   Rs.{salesLoading ? "..." : todaysSalesTotal.toLocaleString()}
                 </h3>

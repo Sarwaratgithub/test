@@ -78,18 +78,18 @@ export default function CustomerLedgerPage() {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <Card className="bg-red-50 border-red-100 shadow-sm">
-            <CardContent className="p-4">
-              <p className="text-xs font-bold text-red-600 uppercase mb-1">Total Udhar</p>
-              <h3 className="text-2xl font-black text-red-700">Rs.{Number(customer.totalBalance).toLocaleString()}</h3>
+          <Card className="bg-red-50 dark:bg-red-900/10 border-none card-3d ring-4 ring-red-500/10">
+            <CardContent className="p-5">
+              <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-1">Total Udhar</p>
+              <h3 className="text-2xl font-black text-red-700 dark:text-red-400">Rs.{Number(customer.totalBalance).toLocaleString()}</h3>
             </CardContent>
           </Card>
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button size="lg" className="h-full bg-primary flex flex-col items-center gap-1">
-                <Plus className="h-5 w-5" />
-                <span className="text-xs">Entry</span>
+              <Button size="lg" className="h-full bg-primary btn-3d rounded-2xl flex flex-col items-center justify-center gap-2 p-4">
+                <Plus className="h-6 w-6 text-white" />
+                <span className="text-xs font-black text-white uppercase tracking-wider">New Entry</span>
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -172,29 +172,32 @@ export default function CustomerLedgerPage() {
           </div>
 
           {txLoading ? (
-            <div className="text-center py-8">Loading history...</div>
+            <div className="text-center py-12">
+              <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
+            </div>
           ) : !transactions || transactions.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-2xl border border-dashed">
-              <p className="text-muted-foreground">No entries yet</p>
+            <div className="text-center py-12 bg-white/50 dark:bg-slate-900/50 rounded-[2rem] border-2 border-dashed border-gray-200 dark:border-gray-800">
+              <p className="text-muted-foreground font-medium uppercase tracking-tight">No entries yet</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {transactions.map((tx) => (
-                <div key={tx.id} className="bg-white p-4 rounded-xl border shadow-sm flex items-center justify-between">
+                <div key={tx.id} className="card-3d bg-white dark:bg-slate-900 p-5 border-none flex items-center justify-between group overflow-hidden relative">
+                  <div className={`absolute left-0 top-0 bottom-0 w-1 ${tx.type === 'give' ? 'bg-red-500' : 'bg-green-500'}`} />
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-bold text-gray-900 dark:text-white text-lg">
                       {tx.description || (tx.type === 'give' ? "Udhar Diya" : "Wapas Mila")}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      {tx.createdAt ? format(new Date(tx.createdAt), "MMM d, h:mm a") : "N/A"}
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-1">
+                      {tx.createdAt ? format(new Date(tx.createdAt), "dd MMM • h:mm a") : "N/A"}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className={`font-bold ${tx.type === 'give' ? 'text-red-600' : 'text-green-600'}`}>
+                    <p className={`text-xl font-black ${tx.type === 'give' ? 'text-red-600' : 'text-green-600'}`}>
                       {tx.type === 'give' ? '+' : '-'}Rs.{Number(tx.amount).toLocaleString()}
                     </p>
-                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">
-                      {tx.type === 'give' ? 'Debit' : 'Credit'}
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter opacity-70">
+                      {tx.type === 'give' ? 'Udhar Diya' : 'Wapas Mila'}
                     </p>
                   </div>
                 </div>

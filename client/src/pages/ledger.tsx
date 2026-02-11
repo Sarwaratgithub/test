@@ -71,31 +71,31 @@ export default function LedgerPage() {
         <h2 className="text-2xl font-heading font-bold text-gray-900 uppercase tracking-tighter">Business Ledger</h2>
 
         <div className="grid grid-cols-2 gap-4">
-          <Card className="bg-slate-900 text-white border-none card-3d overflow-hidden rounded-2xl">
-            <CardContent className="p-4 flex flex-col justify-between h-28 relative">
+          <Card className="bg-slate-900 text-white border-none card-3d overflow-hidden rounded-[2rem] ring-4 ring-slate-800">
+            <CardContent className="p-5 flex flex-col justify-between h-32 relative">
               <div className="absolute top-0 right-0 p-4 opacity-10">
-                <ShoppingBag size={48} />
+                <ShoppingBag size={80} />
               </div>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Purchases</p>
-              <h3 className="text-xl font-black">Rs.{totalPurchases.toLocaleString()}</h3>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Purchases</p>
+              <h3 className="text-2xl font-black">Rs.{totalPurchases.toLocaleString()}</h3>
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-none card-3d overflow-hidden rounded-2xl">
-            <CardContent className="p-4 flex flex-col justify-between h-28 relative">
+          <Card className="bg-white dark:bg-slate-900 border-none card-3d overflow-hidden rounded-[2rem] ring-4 ring-red-500/10">
+            <CardContent className="p-5 flex flex-col justify-between h-32 relative">
               <div className="absolute top-0 right-0 p-4 opacity-10 text-destructive">
-                <Receipt size={48} />
+                <Receipt size={80} />
               </div>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total Expenses</p>
-              <h3 className="text-xl font-black text-destructive">Rs.{totalExpenses.toLocaleString()}</h3>
+              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Expenses</p>
+              <h3 className="text-2xl font-black text-destructive">Rs.{totalExpenses.toLocaleString()}</h3>
             </CardContent>
           </Card>
         </div>
 
         <Tabs defaultValue="purchases" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-slate-100 rounded-xl p-1">
-            <TabsTrigger value="purchases" className="rounded-lg font-bold text-xs uppercase tracking-tight">Purchases</TabsTrigger>
-            <TabsTrigger value="expenses" className="rounded-lg font-bold text-xs uppercase tracking-tight">Expenses</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 bg-slate-200/50 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl p-1.5 shadow-inner">
+            <TabsTrigger value="purchases" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300">Purchases</TabsTrigger>
+            <TabsTrigger value="expenses" className="rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-destructive data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300">Expenses</TabsTrigger>
           </TabsList>
 
           <TabsContent value="purchases" className="mt-4 space-y-4">
@@ -127,16 +127,16 @@ export default function LedgerPage() {
               </Dialog>
             </div>
 
-            {purchasesLoading ? <div className="flex justify-center py-12"><Loader2 className="animate-spin text-primary" /></div> : (
-              <div className="space-y-3 pb-20">
+            {purchasesLoading ? <div className="flex justify-center py-12"><Loader2 className="animate-spin h-10 w-10 text-primary" /></div> : (
+              <div className="space-y-4 pb-20">
                 {purchases?.map((p) => (
-                  <div key={p.id} className="bg-white p-4 rounded-xl border shadow-sm flex items-center justify-between">
+                  <div key={p.id} className="card-3d bg-white dark:bg-slate-900 p-5 border-none flex items-center justify-between group">
                     <div>
-                      <p className="font-bold text-gray-900">{p.supplierName}</p>
-                      <p className="text-xs text-muted-foreground">{p.description || "No description"}</p>
-                      <p className="text-[10px] text-gray-400 mt-1">{p.date ? format(new Date(p.date), "dd MMM yyyy") : "N/A"}</p>
+                      <p className="font-bold text-gray-900 dark:text-white text-lg">{p.supplierName}</p>
+                      <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-1">{p.description || "Purchase Entry"}</p>
+                      <p className="text-[10px] font-black text-primary uppercase mt-1.5">{p.date ? format(new Date(p.date), "dd MMM yyyy") : "N/A"}</p>
                     </div>
-                    <span className="font-black text-gray-900">Rs.{Number(p.amount).toLocaleString()}</span>
+                    <span className="font-black text-xl text-gray-900 dark:text-white">Rs.{Number(p.amount).toLocaleString()}</span>
                   </div>
                 ))}
               </div>
@@ -172,16 +172,17 @@ export default function LedgerPage() {
               </Dialog>
             </div>
 
-            {expensesLoading ? <div className="flex justify-center py-12"><Loader2 className="animate-spin text-primary" /></div> : (
-              <div className="space-y-3 pb-20">
+            {expensesLoading ? <div className="flex justify-center py-12"><Loader2 className="animate-spin h-10 w-10 text-primary" /></div> : (
+              <div className="space-y-4 pb-20">
                 {expenses?.map((e) => (
-                  <div key={e.id} className="bg-white p-4 rounded-xl border shadow-sm flex items-center justify-between border-l-4 border-l-destructive">
+                  <div key={e.id} className="card-3d bg-white dark:bg-slate-900 p-5 border-none flex items-center justify-between border-l-4 border-l-destructive overflow-hidden relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-destructive" />
                     <div>
-                      <p className="font-bold text-gray-900">{e.category}</p>
-                      <p className="text-xs text-muted-foreground">{e.description || "No description"}</p>
-                      <p className="text-[10px] text-gray-400 mt-1">{e.date ? format(new Date(e.date), "dd MMM yyyy") : "N/A"}</p>
+                      <p className="font-bold text-gray-900 dark:text-white text-lg uppercase tracking-tight">{e.category}</p>
+                      <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-1">{e.description || "Expense Entry"}</p>
+                      <p className="text-[10px] font-black text-destructive uppercase mt-1.5">{e.date ? format(new Date(e.date), "dd MMM yyyy") : "N/A"}</p>
                     </div>
-                    <span className="font-black text-destructive">Rs.{Number(e.amount).toLocaleString()}</span>
+                    <span className="font-black text-xl text-destructive">Rs.{Number(e.amount).toLocaleString()}</span>
                   </div>
                 ))}
               </div>
