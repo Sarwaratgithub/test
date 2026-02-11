@@ -30,41 +30,44 @@ export default function HomePage() {
         
         {/* Quick Stats Grid */}
         <div className="grid grid-cols-2 gap-4">
-          <Card className="primary-gradient border-none card-3d overflow-hidden">
-            <CardContent className="p-4 flex flex-col justify-between h-32 relative">
-              <div className="absolute top-0 right-0 p-8 opacity-10 transform translate-x-4 -translate-y-4">
-                <TrendingUp size={80} />
+          <Card className="primary-gradient border-none card-3d overflow-hidden ring-4 ring-green-500/20">
+            <CardContent className="p-5 flex flex-col justify-between h-40 relative">
+              <div className="absolute top-0 right-0 p-8 opacity-20 transform rotate-12 translate-x-4 -translate-y-4">
+                <TrendingUp size={100} />
               </div>
               <div className="flex justify-between items-start">
-                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-                  <TrendingUp className="h-5 w-5" />
+                <div className="p-3 bg-white/30 rounded-2xl backdrop-blur-md shadow-inner">
+                  <TrendingUp className="h-6 w-6" />
                 </div>
-                <span className="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="text-[10px] font-black bg-white/30 px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-sm">
                   Today
                 </span>
               </div>
               <div>
-                <p className="text-xs font-bold text-green-100 uppercase tracking-tighter">Total Sales</p>
-                <h3 className="text-2xl font-black mt-1">
+                <p className="text-xs font-black text-green-100 uppercase tracking-widest opacity-80">Total Sales</p>
+                <h3 className="text-3xl font-black mt-1 drop-shadow-md">
                   Rs.{salesLoading ? "..." : todaysSalesTotal.toLocaleString()}
                 </h3>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-none card-3d overflow-hidden">
-            <CardContent className="p-4 flex flex-col justify-between h-32 relative">
-              <div className="absolute top-0 right-0 p-8 opacity-5 transform translate-x-4 -translate-y-4 text-red-600">
-                <Users size={80} />
+          <Card className="bg-white dark:bg-slate-900 border-none card-3d overflow-hidden ring-4 ring-red-500/10">
+            <CardContent className="p-5 flex flex-col justify-between h-40 relative">
+              <div className="absolute top-0 right-0 p-8 opacity-10 transform -rotate-12 translate-x-4 -translate-y-4 text-red-600">
+                <Users size={100} />
               </div>
               <div className="flex justify-between items-start">
-                <div className="p-2 bg-red-50 text-red-600 rounded-xl">
-                  <Users className="h-5 w-5" />
+                <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-2xl shadow-inner">
+                  <Users className="h-6 w-6 text-red-600" />
                 </div>
+                <span className="text-[10px] font-black bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-3 py-1 rounded-full uppercase tracking-widest">
+                  Credit
+                </span>
               </div>
               <div>
-                <p className="text-xs font-bold text-muted-foreground uppercase tracking-tighter">Market Udhar</p>
-                <h3 className="text-2xl font-black mt-1 text-red-600">
+                <p className="text-xs font-black text-slate-500 uppercase tracking-widest opacity-80">Total Udhar</p>
+                <h3 className="text-3xl font-black mt-1 text-red-600 drop-shadow-sm">
                   Rs.{customersLoading ? "..." : totalUdhar.toLocaleString()}
                 </h3>
               </div>
