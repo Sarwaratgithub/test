@@ -84,14 +84,14 @@ export default function HomePage() {
             </Button>
           </Link>
           <Link href="/customers">
-            <Button size="lg" className="w-full h-16 text-base bg-primary text-primary-foreground border-none shadow-3d flex flex-col items-center justify-center gap-0 btn-3d rounded-2xl">
+            <Button size="lg" className="w-full h-16 text-base bg-secondary text-secondary-foreground border-none shadow-3d flex flex-col items-center justify-center gap-0 btn-3d rounded-2xl">
               <Plus className="h-5 w-5 mb-1" />
               <span className="font-bold text-[10px] uppercase">Khata</span>
             </Button>
           </Link>
           <Link href="/ledger">
-            <Button size="lg" className="w-full h-16 text-base bg-white text-foreground border-none shadow-3d hover:bg-gray-50 flex flex-col items-center justify-center gap-0 btn-3d rounded-2xl">
-              <ReceiptText className="h-5 w-5 text-primary mb-1" />
+            <Button size="lg" className="w-full h-16 text-base bg-accent text-accent-foreground border-none shadow-3d flex flex-col items-center justify-center gap-0 btn-3d rounded-2xl">
+              <ReceiptText className="h-5 w-5 mb-1" />
               <span className="font-bold text-[10px] uppercase">Ledger</span>
             </Button>
           </Link>

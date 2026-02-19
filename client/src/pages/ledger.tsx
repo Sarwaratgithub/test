@@ -71,23 +71,23 @@ export default function LedgerPage() {
         <h2 className="text-2xl font-heading font-bold text-gray-900 uppercase tracking-tighter">Business Ledger</h2>
 
         <div className="grid grid-cols-2 gap-4">
-          <Card className="bg-slate-900 text-white border-none card-3d overflow-hidden rounded-[2rem] ring-4 ring-slate-800">
+          <Card className="bg-primary text-white border-none card-3d overflow-hidden rounded-[2rem] ring-4 ring-primary/20">
             <CardContent className="p-5 flex flex-col justify-between h-32 relative">
               <div className="absolute top-0 right-0 p-4 opacity-10">
                 <ShoppingBag size={80} />
               </div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Purchases</p>
+              <p className="text-[10px] font-black text-blue-100 uppercase tracking-widest">Purchases</p>
               <h3 className="text-2xl font-black">Rs.{totalPurchases.toLocaleString()}</h3>
             </CardContent>
           </Card>
 
-          <Card className="bg-white dark:bg-slate-900 border-none card-3d overflow-hidden rounded-[2rem] ring-4 ring-red-500/10">
+          <Card className="bg-accent text-white border-none card-3d overflow-hidden rounded-[2rem] ring-4 ring-accent/20">
             <CardContent className="p-5 flex flex-col justify-between h-32 relative">
-              <div className="absolute top-0 right-0 p-4 opacity-10 text-destructive">
+              <div className="absolute top-0 right-0 p-4 opacity-10 text-white">
                 <Receipt size={80} />
               </div>
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Expenses</p>
-              <h3 className="text-2xl font-black text-destructive">Rs.{totalExpenses.toLocaleString()}</h3>
+              <p className="text-[10px] font-black text-red-100 uppercase tracking-widest">Expenses</p>
+              <h3 className="text-2xl font-black">Rs.{totalExpenses.toLocaleString()}</h3>
             </CardContent>
           </Card>
         </div>
