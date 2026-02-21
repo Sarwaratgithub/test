@@ -126,9 +126,10 @@ export async function registerRoutes(
 
   app.patch("/api/transactions/:id", requireAuth, async (req, res) => {
     const txId = Number(req.params.id);
-    const txs = await storage.getTransactions(req.user!.id);
-    const tx = txs.find(t => t.id === txId);
-    if (!tx) return res.status(404).json({ message: "Transaction not found" });
+    const tx = await storage.getTransaction(txId);
+    if (!tx || tx.userId !== req.user!.id) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
 
     const schema = z.object({
       amount: z.coerce.string().optional(),

@@ -27,7 +27,11 @@ export interface IStorage {
 
   // Transactions
   getTransactions(userId: number, customerId?: number): Promise<Transaction[]>;
+  getTransaction(id: number): Promise<Transaction | undefined>;
   createTransaction(transaction: InsertTransaction & { userId: number }): Promise<Transaction>;
+  updateTransaction(id: number, updates: any): Promise<Transaction>;
+  deleteTransaction(id: number): Promise<void>;
+  updateCustomerBalance(id: number, amountChange: number): Promise<void>;
 
   // Sales
   getSales(userId: number): Promise<Sale[]>;
@@ -44,8 +48,40 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    try {
+      const [user] = await db.select().from(users).where(eq(users.id, id));
+      if (!user) return undefined;
+
+      // Update streak logic
+      const today = new Date().toISOString().split('T')[0];
+      if (user.lastLoginDate !== today) {
+        let newStreak = 1;
+        if (user.lastLoginDate) {
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayStr = yesterday.toISOString().split('T')[0];
+          
+          if (user.lastLoginDate === yesterdayStr) {
+            newStreak = user.loginStreak + 1;
+          }
+        }
+        
+        const [updatedUser] = await db.update(users)
+          .set({ 
+            lastLoginDate: today, 
+            loginStreak: newStreak 
+          })
+          .where(eq(users.id, id))
+          .returning();
+        return updatedUser;
+      }
+
+      return user;
+    } catch (err) {
+      // Fallback for missing columns during migration
+      const [user] = await db.select().from(users).where(eq(users.id, id));
+      return user;
+    }
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
@@ -80,6 +116,11 @@ export class DatabaseStorage implements IStorage {
     return customer;
   }
 
+  async getTransaction(id: number): Promise<Transaction | undefined> {
+    const [tx] = await db.select().from(transactions).where(eq(transactions.id, id));
+    return tx;
+  }
+
   async createCustomer(customer: InsertCustomer & { userId: number }): Promise<Customer> {
     const [newCustomer] = await db.insert(customers).values({
       ...customer,
@@ -102,18 +143,25 @@ export class DatabaseStorage implements IStorage {
     await db.delete(customers).where(eq(customers.id, id));
   }
 
-  async updateTransaction(id: number, updates: Partial<InsertTransaction>): Promise<Transaction> {
-    const oldTx = await db.select().from(transactions).where(eq(transactions.id, id)).limit(1);
-    if (oldTx.length === 0) throw new Error("Transaction not found");
+  async getTransaction(id: number): Promise<Transaction | undefined> {
+    const [tx] = await db.select().from(transactions).where(eq(transactions.id, id));
+    return tx;
+  }
+
+  async updateTransaction(id: number, updates: any): Promise<Transaction> {
+    const [oldTx] = await db.select().from(transactions).where(eq(transactions.id, id)).limit(1);
+    if (!oldTx) throw new Error("Transaction not found");
 
     const [newTx] = await db.update(transactions).set(updates).where(eq(transactions.id, id)).returning();
 
     // Re-calculate balance if amount or type changed
     if (updates.amount !== undefined || updates.type !== undefined) {
-      const diff = parseFloat(oldTx[0].amount) * (oldTx[0].type === 'receive' ? -1 : 1);
-      await this.updateCustomerBalance(oldTx[0].customerId, -diff); // Reverse old
+      const oldAmount = parseFloat(oldTx.amount as string);
+      const oldDiff = oldAmount * (oldTx.type === 'receive' ? -1 : 1);
+      await this.updateCustomerBalance(oldTx.customerId, -oldDiff); // Reverse old
 
-      const newDiff = parseFloat(newTx.amount) * (newTx.type === 'receive' ? -1 : 1);
+      const newAmount = parseFloat(newTx.amount as string);
+      const newDiff = newAmount * (newTx.type === 'receive' ? -1 : 1);
       await this.updateCustomerBalance(newTx.customerId, newDiff); // Apply new
     }
 
@@ -124,7 +172,8 @@ export class DatabaseStorage implements IStorage {
     const [tx] = await db.select().from(transactions).where(eq(transactions.id, id)).limit(1);
     if (!tx) return;
 
-    const diff = parseFloat(tx.amount) * (tx.type === 'receive' ? -1 : 1);
+    const amount = parseFloat(tx.amount as string);
+    const diff = amount * (tx.type === 'receive' ? -1 : 1);
     await this.updateCustomerBalance(tx.customerId, -diff);
     await db.delete(transactions).where(eq(transactions.id, id));
   }
@@ -134,7 +183,7 @@ export class DatabaseStorage implements IStorage {
     if (!customer) return;
     
     // Convert to float for calculation then back to string/decimal
-    const currentBalance = parseFloat(customer.totalBalance);
+    const currentBalance = parseFloat(customer.totalBalance as string);
     const newBalance = currentBalance + amountChange;
     
     await db.update(customers)
@@ -166,7 +215,7 @@ export class DatabaseStorage implements IStorage {
     // Update customer balance logic
     // 'give' = Udhar Diya (Balance increases)
     // 'receive' = Wapas Mila (Balance decreases)
-    let amountChange = parseFloat(transaction.amount);
+    let amountChange = parseFloat(transaction.amount as string);
     if (transaction.type === 'receive') {
       amountChange = -amountChange;
     }

@@ -4,7 +4,7 @@ import { useSales } from "@/hooks/use-sales";
 import { useCustomers } from "@/hooks/use-customers";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, ArrowRight, TrendingUp, Users, ReceiptText } from "lucide-react";
+import { Plus, ArrowRight, TrendingUp, Users, ReceiptText, Flame } from "lucide-react";
 import { Link } from "wouter";
 import { format, isSameDay } from "date-fns";
 
@@ -29,6 +29,18 @@ export default function HomePage() {
       <div className="space-y-6">
         
         {/* Quick Stats Grid */}
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-xl font-heading font-black text-gray-900 uppercase tracking-tight">Dashboard</h2>
+          {user?.loginStreak !== undefined && user.loginStreak > 0 && (
+            <div className="flex items-center gap-1.5 bg-orange-100 dark:bg-orange-900/30 px-3 py-1 rounded-full border border-orange-200 dark:border-orange-800 animate-pulse">
+              <Flame className="h-4 w-4 text-orange-600 fill-orange-600" />
+              <span className="text-xs font-black text-orange-700 dark:text-orange-400 uppercase tracking-wider">
+                {user.loginStreak} Day Streak
+              </span>
+            </div>
+          )}
+        </div>
+
         <div className="grid grid-cols-2 gap-4">
           <Card className="primary-gradient border-none card-3d overflow-hidden ring-4 ring-blue-500/20">
             <CardContent className="p-5 flex flex-col justify-between h-40 relative">

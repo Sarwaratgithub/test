@@ -13,6 +13,8 @@ export const users = pgTable("users", {
   password: text("password").notNull(),          // Acts as PIN
   shopName: text("shop_name").notNull().default("Meri Kirana Dukaan"),
   ownerName: text("owner_name").notNull().default("Dukandar"),
+  lastLoginDate: text("last_login_date"), // YYYY-MM-DD
+  loginStreak: integer("login_streak").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

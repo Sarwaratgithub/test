@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { Layout } from "@/components/layout";
 import { useCustomers, useUpdateCustomer, useDeleteCustomer } from "@/hooks/use-customers";
-import { useTransactions, useCreateTransaction, useDeleteTransaction } from "@/hooks/use-transactions";
+import { useTransactions, useCreateTransaction, useDeleteTransaction, useUpdateTransaction } from "@/hooks/use-transactions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
+import { type Transaction } from "@shared/schema";
 
 const transactionFormSchema = z.object({
   amount: z.coerce.number().min(1, "Amount must be at least 1"),
@@ -44,6 +46,7 @@ export default function CustomerLedgerPage() {
   const deleteTx = useDeleteTransaction();
 
   const [isEditCustomerOpen, setIsEditCustomerOpen] = useState(false);
+  const [editingTx, setEditingTx] = useState<Transaction | null>(null);
 
   const form = useForm<z.infer<typeof transactionFormSchema>>({
     resolver: zodResolver(transactionFormSchema),
@@ -62,8 +65,25 @@ export default function CustomerLedgerPage() {
     },
   });
 
+  const updateTx = useUpdateTransaction();
+
   const onSubmit = (data: z.infer<typeof transactionFormSchema>) => {
     if (!customerId) return;
+    
+    if (editingTx) {
+      updateTx.mutate({
+        id: editingTx.id,
+        ...data,
+        amount: String(data.amount),
+      }, {
+        onSuccess: () => {
+          setEditingTx(null);
+          form.reset();
+        }
+      });
+      return;
+    }
+
     createTx.mutate({
       ...data,
       amount: String(data.amount),
@@ -102,6 +122,15 @@ export default function CustomerLedgerPage() {
       onSuccess: () => {
         toast({ title: "Entry Deleted", description: "Ledger entry removed" });
       }
+    });
+  };
+
+  const handleEditTx = (tx: Transaction) => {
+    setEditingTx(tx);
+    form.reset({
+      amount: Number(tx.amount),
+      description: tx.description || "",
+      type: tx.type as "give" | "receive",
     });
   };
 
@@ -171,7 +200,7 @@ export default function CustomerLedgerPage() {
             </CardContent>
           </Card>
 
-          <Dialog>
+          <Dialog open={!!editingTx || undefined} onOpenChange={(open) => !open && setEditingTx(null)}>
             <DialogTrigger asChild>
               <Button size="lg" className="h-full bg-primary btn-3d rounded-2xl flex flex-col items-center justify-center gap-2 p-4">
                 <Plus className="h-6 w-6 text-white" />
@@ -180,7 +209,7 @@ export default function CustomerLedgerPage() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Add Entry for {customer.name}</DialogTitle>
+                <DialogTitle>{editingTx ? "Edit Entry" : `Add Entry for ${customer.name}`}</DialogTitle>
               </DialogHeader>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
@@ -275,7 +304,7 @@ export default function CustomerLedgerPage() {
                       {tx.description || (tx.type === 'give' ? "Udhar Diya" : "Wapas Mila")}
                     </p>
                     <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-1">
-                      {tx.createdAt ? format(new Date(tx.createdAt), "dd MMM • h:mm a") : "N/A"}
+                      {tx.date ? format(new Date(tx.date), "dd MMM • h:mm a") : "N/A"}
                     </p>
                   </div>
                   <div className="text-right flex items-center gap-4">
@@ -287,6 +316,14 @@ export default function CustomerLedgerPage() {
                         {tx.type === 'give' ? 'Udhar Diya' : 'Wapas Mila'}
                       </p>
                     </div>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 rounded-full text-gray-300 hover:text-primary transition-colors"
+                      onClick={() => handleEditTx(tx)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
                     <Button 
                       variant="ghost" 
                       size="icon" 

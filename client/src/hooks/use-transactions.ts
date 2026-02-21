@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, type InsertTransaction } from "@shared/routes";
+import { api } from "@shared/routes";
+import { type Transaction, type InsertTransaction } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 
 export function useTransactions(customerId?: number) {
@@ -46,6 +47,28 @@ export function useCreateTransaction() {
       
       const typeText = variables.type === 'give' ? "Udhar Diya" : "Wapas Mila";
       toast({ title: `${typeText}: Rs.${variables.amount}` });
+    },
+  });
+}
+
+export function useUpdateTransaction() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<InsertTransaction> & { id: number }) => {
+      const res = await fetch(`/api/transactions/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      });
+      if (!res.ok) throw new Error("Failed to update transaction");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [api.transactions.list.path] });
+      queryClient.invalidateQueries({ queryKey: ["/api/customers"] });
+      toast({ title: "Entry updated" });
     },
   });
 }
