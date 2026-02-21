@@ -143,11 +143,6 @@ export class DatabaseStorage implements IStorage {
     await db.delete(customers).where(eq(customers.id, id));
   }
 
-  async getTransaction(id: number): Promise<Transaction | undefined> {
-    const [tx] = await db.select().from(transactions).where(eq(transactions.id, id));
-    return tx;
-  }
-
   async updateTransaction(id: number, updates: any): Promise<Transaction> {
     const [oldTx] = await db.select().from(transactions).where(eq(transactions.id, id)).limit(1);
     if (!oldTx) throw new Error("Transaction not found");
