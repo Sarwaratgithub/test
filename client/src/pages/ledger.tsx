@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout";
-import { usePurchases, useCreatePurchase, useExpenses, useCreateExpense } from "@/hooks/use-ledger";
+import { usePurchases, useCreatePurchase, useUpdatePurchase, useDeletePurchase, useExpenses, useCreateExpense, useUpdateExpense, useDeleteExpense } from "@/hooks/use-ledger";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Plus, ShoppingBag, Receipt, Calendar, Loader2 } from "lucide-react";
+import { Plus, ShoppingBag, Receipt, Calendar, Loader2, Trash2, Pencil } from "lucide-react";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { type Purchase, type Expense } from "@shared/schema";
 
 const purchaseFormSchema = z.object({
   supplierName: z.string().min(1, "Supplier name is required"),
@@ -29,10 +30,16 @@ export default function LedgerPage() {
   const { data: purchases, isLoading: purchasesLoading } = usePurchases();
   const { data: expenses, isLoading: expensesLoading } = useExpenses();
   const createPurchase = useCreatePurchase();
+  const updatePurchase = useUpdatePurchase();
+  const deletePurchase = useDeletePurchase();
   const createExpense = useCreateExpense();
+  const updateExpense = useUpdateExpense();
+  const deleteExpense = useDeleteExpense();
 
   const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
   const [expenseDialogOpen, setExpenseDialogOpen] = useState(false);
+  const [editingPurchase, setEditingPurchase] = useState<Purchase | null>(null);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
 
   const purchaseForm = useForm<z.infer<typeof purchaseFormSchema>>({
     resolver: zodResolver(purchaseFormSchema),
@@ -45,6 +52,16 @@ export default function LedgerPage() {
   });
 
   const onPurchaseSubmit = (data: z.infer<typeof purchaseFormSchema>) => {
+    if (editingPurchase) {
+      updatePurchase.mutate({ id: editingPurchase.id, ...data, amount: String(data.amount) }, {
+        onSuccess: () => {
+          setPurchaseDialogOpen(false);
+          setEditingPurchase(null);
+          purchaseForm.reset();
+        },
+      });
+      return;
+    }
     createPurchase.mutate({ ...data, amount: String(data.amount) }, {
       onSuccess: () => {
         setPurchaseDialogOpen(false);
@@ -54,12 +71,42 @@ export default function LedgerPage() {
   };
 
   const onExpenseSubmit = (data: z.infer<typeof expenseFormSchema>) => {
+    if (editingExpense) {
+      updateExpense.mutate({ id: editingExpense.id, ...data, amount: String(data.amount) }, {
+        onSuccess: () => {
+          setExpenseDialogOpen(false);
+          setEditingExpense(null);
+          expenseForm.reset();
+        },
+      });
+      return;
+    }
     createExpense.mutate({ ...data, amount: String(data.amount) }, {
       onSuccess: () => {
         setExpenseDialogOpen(false);
         expenseForm.reset();
       },
     });
+  };
+
+  const handleEditPurchase = (p: Purchase) => {
+    setEditingPurchase(p);
+    purchaseForm.reset({
+      supplierName: p.supplierName,
+      amount: Number(p.amount),
+      description: p.description || "",
+    });
+    setPurchaseDialogOpen(true);
+  };
+
+  const handleEditExpense = (e: Expense) => {
+    setEditingExpense(e);
+    expenseForm.reset({
+      category: e.category,
+      amount: Number(e.amount),
+      description: e.description || "",
+    });
+    setExpenseDialogOpen(true);
   };
 
   const totalPurchases = purchases?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
@@ -100,7 +147,10 @@ export default function LedgerPage() {
 
           <TabsContent value="purchases" className="mt-4 space-y-4">
             <div className="flex justify-end">
-              <Dialog open={purchaseDialogOpen} onOpenChange={setPurchaseDialogOpen}>
+              <Dialog open={purchaseDialogOpen} onOpenChange={(open) => {
+                setPurchaseDialogOpen(open);
+                if (!open) setEditingPurchase(null);
+              }}>
                 <DialogTrigger asChild>
                   <Button size="sm" className="bg-primary shadow-3d btn-3d rounded-xl">
                     <Plus className="h-4 w-4 mr-2" />
@@ -108,7 +158,7 @@ export default function LedgerPage() {
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
-                  <DialogHeader><DialogTitle>Record Purchase</DialogTitle></DialogHeader>
+                  <DialogHeader><DialogTitle>{editingPurchase ? "Edit Purchase" : "Record Purchase"}</DialogTitle></DialogHeader>
                   <Form {...purchaseForm}>
                     <form onSubmit={purchaseForm.handleSubmit(onPurchaseSubmit)} className="space-y-4 pt-4">
                       <FormField control={purchaseForm.control} name="supplierName" render={({ field }) => (
@@ -136,7 +186,17 @@ export default function LedgerPage() {
                       <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-1">{p.description || "Purchase Entry"}</p>
                       <p className="text-[10px] font-black text-primary uppercase mt-1.5">{p.date ? format(new Date(p.date), "dd MMM yyyy") : "N/A"}</p>
                     </div>
-                    <span className="font-black text-xl text-gray-900 dark:text-white">Rs.{Number(p.amount).toLocaleString()}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="font-black text-xl text-gray-900 dark:text-white">Rs.{Number(p.amount).toLocaleString()}</span>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-gray-300 hover:text-primary" onClick={() => handleEditPurchase(p)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-gray-300 hover:text-destructive" onClick={() => { if(window.confirm("Delete?")) deletePurchase.mutate(p.id) }}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -145,7 +205,10 @@ export default function LedgerPage() {
 
           <TabsContent value="expenses" className="mt-4 space-y-4">
             <div className="flex justify-end">
-              <Dialog open={expenseDialogOpen} onOpenChange={setExpenseDialogOpen}>
+              <Dialog open={expenseDialogOpen} onOpenChange={(open) => {
+                setExpenseDialogOpen(open);
+                if (!open) setEditingExpense(null);
+              }}>
                 <DialogTrigger asChild>
                   <Button size="sm" className="bg-destructive shadow-3d btn-3d rounded-xl text-white">
                     <Plus className="h-4 w-4 mr-2" />
@@ -153,7 +216,7 @@ export default function LedgerPage() {
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
-                  <DialogHeader><DialogTitle>Record Expense</DialogTitle></DialogHeader>
+                  <DialogHeader><DialogTitle>{editingExpense ? "Edit Expense" : "Record Expense"}</DialogTitle></DialogHeader>
                   <Form {...expenseForm}>
                     <form onSubmit={expenseForm.handleSubmit(onExpenseSubmit)} className="space-y-4 pt-4">
                       <FormField control={expenseForm.control} name="category" render={({ field }) => (
@@ -182,7 +245,17 @@ export default function LedgerPage() {
                       <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-1">{e.description || "Expense Entry"}</p>
                       <p className="text-[10px] font-black text-destructive uppercase mt-1.5">{e.date ? format(new Date(e.date), "dd MMM yyyy") : "N/A"}</p>
                     </div>
-                    <span className="font-black text-xl text-destructive">Rs.{Number(e.amount).toLocaleString()}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="font-black text-xl text-destructive">Rs.{Number(e.amount).toLocaleString()}</span>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-gray-300 hover:text-primary" onClick={() => handleEditExpense(e)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-gray-300 hover:text-destructive" onClick={() => { if(window.confirm("Delete?")) deleteExpense.mutate(e.id) }}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>

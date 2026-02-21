@@ -36,14 +36,20 @@ export interface IStorage {
   // Sales
   getSales(userId: number): Promise<Sale[]>;
   createSale(sale: InsertSale & { userId: number }): Promise<Sale>;
+  updateSale(id: number, updates: any): Promise<Sale>;
+  deleteSale(id: number): Promise<void>;
 
   // Purchases
   getPurchases(userId: number): Promise<Purchase[]>;
   createPurchase(purchase: InsertPurchase & { userId: number }): Promise<Purchase>;
+  updatePurchase(id: number, updates: any): Promise<Purchase>;
+  deletePurchase(id: number): Promise<void>;
 
   // Expenses
   getExpenses(userId: number): Promise<Expense[]>;
   createExpense(expense: InsertExpense & { userId: number }): Promise<Expense>;
+  updateExpense(id: number, updates: any): Promise<Expense>;
+  deleteExpense(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -232,6 +238,15 @@ export class DatabaseStorage implements IStorage {
     return newSale;
   }
 
+  async updateSale(id: number, updates: any): Promise<Sale> {
+    const [updatedSale] = await db.update(sales).set(updates).where(eq(sales.id, id)).returning();
+    return updatedSale;
+  }
+
+  async deleteSale(id: number): Promise<void> {
+    await db.delete(sales).where(eq(sales.id, id));
+  }
+
   async getPurchases(userId: number): Promise<Purchase[]> {
     return await db.select().from(purchases).where(eq(purchases.userId, userId)).orderBy(desc(purchases.date));
   }
@@ -244,6 +259,15 @@ export class DatabaseStorage implements IStorage {
     return newPurchase;
   }
 
+  async updatePurchase(id: number, updates: any): Promise<Purchase> {
+    const [updatedPurchase] = await db.update(purchases).set(updates).where(eq(purchases.id, id)).returning();
+    return updatedPurchase;
+  }
+
+  async deletePurchase(id: number): Promise<void> {
+    await db.delete(purchases).where(eq(purchases.id, id));
+  }
+
   async getExpenses(userId: number): Promise<Expense[]> {
     return await db.select().from(expenses).where(eq(expenses.userId, userId)).orderBy(desc(expenses.date));
   }
@@ -254,6 +278,15 @@ export class DatabaseStorage implements IStorage {
       date: new Date()
     }).returning();
     return newExpense;
+  }
+
+  async updateExpense(id: number, updates: any): Promise<Expense> {
+    const [updatedExpense] = await db.update(expenses).set(updates).where(eq(expenses.id, id)).returning();
+    return updatedExpense;
+  }
+
+  async deleteExpense(id: number): Promise<void> {
+    await db.delete(expenses).where(eq(expenses.id, id));
   }
 }
 

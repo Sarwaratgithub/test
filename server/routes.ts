@@ -177,6 +177,19 @@ export async function registerRoutes(
     }
   });
 
+  app.patch("/api/sales/:id", requireAuth, async (req, res) => {
+    const id = Number(req.params.id);
+    const updates = req.body;
+    const sale = await storage.updateSale(id, updates);
+    res.json(sale);
+  });
+
+  app.delete("/api/sales/:id", requireAuth, async (req, res) => {
+    const id = Number(req.params.id);
+    await storage.deleteSale(id);
+    res.sendStatus(200);
+  });
+
   // === Purchases ===
   app.get("/api/purchases", requireAuth, async (req, res) => {
     try {
@@ -186,6 +199,19 @@ export async function registerRoutes(
       console.error("Error fetching purchases:", err);
       res.status(500).json({ message: "Internal server error" });
     }
+  });
+
+  app.patch("/api/purchases/:id", requireAuth, async (req, res) => {
+    const id = Number(req.params.id);
+    const updates = req.body;
+    const purchase = await storage.updatePurchase(id, updates);
+    res.json(purchase);
+  });
+
+  app.delete("/api/purchases/:id", requireAuth, async (req, res) => {
+    const id = Number(req.params.id);
+    await storage.deletePurchase(id);
+    res.sendStatus(200);
   });
 
   app.post("/api/purchases", requireAuth, async (req, res) => {
@@ -219,6 +245,19 @@ export async function registerRoutes(
       console.error("Error fetching expenses:", err);
       res.status(500).json({ message: "Internal server error" });
     }
+  });
+
+  app.patch("/api/expenses/:id", requireAuth, async (req, res) => {
+    const id = Number(req.params.id);
+    const updates = req.body;
+    const expense = await storage.updateExpense(id, updates);
+    res.json(expense);
+  });
+
+  app.delete("/api/expenses/:id", requireAuth, async (req, res) => {
+    const id = Number(req.params.id);
+    await storage.deleteExpense(id);
+    res.sendStatus(200);
   });
 
   app.post("/api/expenses", requireAuth, async (req, res) => {

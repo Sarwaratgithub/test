@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout";
-import { useSales, useCreateSale } from "@/hooks/use-sales";
+import { useSales, useCreateSale, useUpdateSale, useDeleteSale } from "@/hooks/use-sales";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Plus, Banknote, Calendar, ArrowLeft, ArrowRight } from "lucide-react";
+import { Plus, Banknote, Calendar, ArrowLeft, ArrowRight, Trash2, Pencil } from "lucide-react";
 import { format, subDays, startOfDay, endOfDay, isSameDay } from "date-fns";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { insertSaleSchema } from "@shared/schema";
+import { type Sale } from "@shared/schema";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Custom schema to handle string->number coercion for amount
@@ -25,7 +25,11 @@ const saleFormSchema = z.object({
 export default function SalesPage() {
   const { data: sales, isLoading } = useSales();
   const createSale = useCreateSale();
+  const updateSale = useUpdateSale();
+  const deleteSale = useDeleteSale();
+  
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingSale, setEditingSale] = useState<Sale | null>(null);
   const [viewDate, setViewDate] = useState(new Date());
 
   const form = useForm<z.infer<typeof saleFormSchema>>({
@@ -39,17 +43,45 @@ export default function SalesPage() {
   });
 
   const onSubmit = (data: z.infer<typeof saleFormSchema>) => {
-    createSale.mutate(data, {
+    const payload = {
+      ...data,
+      date: new Date(data.date),
+    };
+
+    if (editingSale) {
+      updateSale.mutate({ id: editingSale.id, ...payload } as any, {
+        onSuccess: () => {
+          setIsDialogOpen(false);
+          setEditingSale(null);
+          form.reset();
+        },
+      });
+      return;
+    }
+
+    createSale.mutate(payload as any, {
       onSuccess: () => {
         setIsDialogOpen(false);
-        form.reset({
-          amount: "",
-          type: "cash_sale",
-          description: "",
-          date: format(new Date(), "yyyy-MM-dd"),
-        });
+        form.reset();
       },
     });
+  };
+
+  const handleEdit = (sale: Sale) => {
+    setEditingSale(sale);
+    form.reset({
+      amount: String(sale.amount),
+      type: sale.type as "cash_sale" | "cash_in_hand",
+      description: sale.description || "",
+      date: sale.date ? format(new Date(sale.date), "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = (id: number) => {
+    if (window.confirm("Delete this entry?")) {
+      deleteSale.mutate(id);
+    }
   };
 
   const selectedSales = sales?.filter(s => 
@@ -70,7 +102,10 @@ export default function SalesPage() {
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-heading font-bold text-gray-900 uppercase tracking-tighter">Sales & Cash</h2>
           
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) setEditingSale(null);
+          }}>
             <DialogTrigger asChild>
               <Button size="sm" className="bg-blue-600 hover:bg-blue-700 shadow-3d btn-3d rounded-xl px-4 py-6 text-white">
                 <Plus className="h-5 w-5 mr-2" />
@@ -79,7 +114,7 @@ export default function SalesPage() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Add Sales/Cash Entry</DialogTitle>
+                <DialogTitle>{editingSale ? "Edit Entry" : "Add Sales/Cash Entry"}</DialogTitle>
               </DialogHeader>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
@@ -219,9 +254,19 @@ export default function SalesPage() {
                     </p>
                   </div>
                 </div>
-                <span className={`text-xl font-black ${sale.type === 'cash_in_hand' ? 'text-blue-600' : 'text-indigo-600'}`}>
-                  +Rs.{Number(sale.amount).toLocaleString()}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className={`text-xl font-black ${sale.type === 'cash_in_hand' ? 'text-blue-600' : 'text-indigo-600'}`}>
+                    +Rs.{Number(sale.amount).toLocaleString()}
+                  </span>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-gray-300 hover:text-primary" onClick={() => handleEdit(sale)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-gray-300 hover:text-destructive" onClick={() => handleDelete(sale.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
               </div>
             ))
           )}
