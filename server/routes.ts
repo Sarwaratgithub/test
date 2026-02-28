@@ -286,7 +286,13 @@ export async function registerRoutes(
   app.put(api.auth.updateProfile.path, requireAuth, async (req, res) => {
     try {
        const input = api.auth.updateProfile.input.parse(req.body);
-       const updatedUser = await storage.updateUser(req.user!.id, input);
+       
+       const updates: any = { ...input };
+       if (input.password) {
+         updates.password = await hashPassword(input.password);
+       }
+       
+       const updatedUser = await storage.updateUser(req.user!.id, updates);
        res.json(updatedUser);
     } catch (err) {
       if (err instanceof z.ZodError) {
