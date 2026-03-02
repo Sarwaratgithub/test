@@ -40,12 +40,9 @@ export default function HomePage() {
 
   const totalUdhar = customers?.reduce((sum, c) => sum + Number(c.totalBalance), 0) || 0;
 
-  const recentSales = sales?.slice(0, 3) || [];
-  const recentPurchases = purchases?.slice(0, 2) || [];
-  const recentExpenses = expenses?.slice(0, 2) || [];
-  const recentLedger = [...recentPurchases.map(p => ({ ...p, ledgerType: 'purchase' as const })), ...recentExpenses.map(e => ({ ...e, ledgerType: 'expense' as const }))]
-    .sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
-    .slice(0, 3);
+  const recentSales = todaysSales;
+  const recentLedger = [...todaysPurchases.map(p => ({ ...p, ledgerType: 'purchase' as const })), ...todaysExpenses.map(e => ({ ...e, ledgerType: 'expense' as const }))]
+    .sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
 
   const isLoading = salesLoading || customersLoading || txsLoading || purchasesLoading || expensesLoading;
 
@@ -81,7 +78,7 @@ export default function HomePage() {
                 </span>
               </div>
               <div>
-                <p className="text-xs font-black text-blue-100 uppercase tracking-widest opacity-80">Total Sales</p>
+                <p className="text-xs font-black text-blue-100 uppercase tracking-widest opacity-80">Net Sales</p>
                 <h3 className="text-3xl font-black mt-1 drop-shadow-md">
                   Rs.{isLoading ? "..." : netTodaysSales.toLocaleString()}
                 </h3>
@@ -136,10 +133,13 @@ export default function HomePage() {
 
         {/* Recent Activity Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
-          {/* Recent Sales */}
+          {/* Today's Sales */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-heading font-semibold text-lg">Recent Sales</h3>
+              <div>
+                <h3 className="font-heading font-semibold text-lg leading-none">Today's Sales</h3>
+                <p className="text-xs font-bold text-green-600 mt-1 uppercase tracking-wider">Total: Rs.{todaysSalesTotal.toLocaleString()}</p>
+              </div>
               <Link href="/sales" className="text-sm text-primary font-medium flex items-center gap-1">
                 View All <ArrowRight className="h-3 w-3" />
               </Link>
@@ -152,7 +152,7 @@ export default function HomePage() {
                 ))
               ) : recentSales.length === 0 ? (
                 <div className="text-center py-8 bg-gray-50 dark:bg-slate-900/50 rounded-xl border border-dashed">
-                  <p className="text-muted-foreground text-sm">No sales yet</p>
+                  <p className="text-muted-foreground text-sm">No sales today</p>
                 </div>
               ) : (
                 recentSales.map((sale) => (
@@ -174,10 +174,13 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Recent Ledger (Purchases & Expenses) */}
+          {/* Today's Ledger (Purchases & Expenses) */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-heading font-semibold text-lg">Recent Ledger</h3>
+              <div>
+                <h3 className="font-heading font-semibold text-lg leading-none">Today's Ledger</h3>
+                <p className="text-xs font-bold text-red-600 mt-1 uppercase tracking-wider">Total: Rs.{(todaysPurchasesTotal + todaysExpensesTotal).toLocaleString()}</p>
+              </div>
               <Link href="/ledger" className="text-sm text-primary font-medium flex items-center gap-1">
                 View All <ArrowRight className="h-3 w-3" />
               </Link>
@@ -190,7 +193,7 @@ export default function HomePage() {
                 ))
               ) : recentLedger.length === 0 ? (
                 <div className="text-center py-8 bg-gray-50 dark:bg-slate-900/50 rounded-xl border border-dashed">
-                  <p className="text-muted-foreground text-sm">No entries yet</p>
+                  <p className="text-muted-foreground text-sm">No ledger entries today</p>
                 </div>
               ) : (
                 recentLedger.map((item: any) => (
@@ -200,7 +203,7 @@ export default function HomePage() {
                         {'supplierName' in item ? item.supplierName : item.category}
                       </p>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                        {item.ledgerType.toUpperCase()} • {item.date ? format(new Date(item.date), "dd MMM") : "N/A"}
+                        {item.ledgerType.toUpperCase()} • {item.date ? format(new Date(item.date), "h:mm a") : "N/A"}
                       </p>
                     </div>
                     <span className="font-bold text-red-600">
