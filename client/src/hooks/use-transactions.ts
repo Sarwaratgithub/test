@@ -15,7 +15,6 @@ export function useTransactions(customerId?: number) {
       if (!res.ok) throw new Error("Failed to fetch transactions");
       return api.transactions.list.responses[200].parse(await res.json());
     },
-    enabled: customerId !== undefined,
   });
 }
 

@@ -2,6 +2,8 @@ import { Layout } from "@/components/layout";
 import { useAuth } from "@/hooks/use-auth";
 import { useSales } from "@/hooks/use-sales";
 import { useCustomers } from "@/hooks/use-customers";
+import { useTransactions } from "@/hooks/use-transactions";
+import { usePurchases, useExpenses } from "@/hooks/use-ledger";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, ArrowRight, TrendingUp, Users, ReceiptText, Flame } from "lucide-react";
@@ -12,17 +14,35 @@ export default function HomePage() {
   const { user } = useAuth();
   const { data: sales, isLoading: salesLoading } = useSales();
   const { data: customers, isLoading: customersLoading } = useCustomers();
+  const { data: transactions, isLoading: txsLoading } = useTransactions();
+  const { data: purchases, isLoading: purchasesLoading } = usePurchases();
+  const { data: expenses, isLoading: expensesLoading } = useExpenses();
+
+  const isToday = (date: string | Date | null | undefined) => {
+    if (!date) return false;
+    return isSameDay(new Date(date), new Date());
+  };
 
   // Calculate stats
-  const selectedSales = sales?.filter(s => 
-    isSameDay(new Date(s.date!), new Date())
-  ) || [];
-  
-  const todaysSalesTotal = selectedSales.reduce((sum, s) => sum + Number(s.amount), 0);
+  const todaysSales = sales?.filter(s => isToday(s.date)) || [];
+  const todaysSalesTotal = todaysSales.reduce((sum, s) => sum + Number(s.amount), 0);
+
+  const todaysPayments = transactions?.filter(t => t.type === 'receive' && isToday(t.date)) || [];
+  const todaysPaymentsTotal = todaysPayments.reduce((sum, t) => sum + Number(t.amount), 0);
+
+  const todaysPurchases = purchases?.filter(p => isToday(p.date)) || [];
+  const todaysPurchasesTotal = todaysPurchases.reduce((sum, p) => sum + Number(p.amount), 0);
+
+  const todaysExpenses = expenses?.filter(e => isToday(e.date)) || [];
+  const todaysExpensesTotal = todaysExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+
+  const netTodaysSales = todaysSalesTotal + todaysPaymentsTotal - todaysPurchasesTotal - todaysExpensesTotal;
 
   const totalUdhar = customers?.reduce((sum, c) => sum + Number(c.totalBalance), 0) || 0;
 
   const recentSales = sales?.slice(0, 3) || [];
+
+  const isLoading = salesLoading || customersLoading || txsLoading || purchasesLoading || expensesLoading;
 
   return (
     <Layout>
@@ -58,7 +78,7 @@ export default function HomePage() {
               <div>
                 <p className="text-xs font-black text-blue-100 uppercase tracking-widest opacity-80">Total Sales</p>
                 <h3 className="text-3xl font-black mt-1 drop-shadow-md">
-                  Rs.{salesLoading ? "..." : todaysSalesTotal.toLocaleString()}
+                  Rs.{isLoading ? "..." : netTodaysSales.toLocaleString()}
                 </h3>
               </div>
             </CardContent>
