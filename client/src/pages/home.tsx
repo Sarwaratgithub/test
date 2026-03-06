@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Layout } from "@/components/layout";
 import { useAuth } from "@/hooks/use-auth";
 import { useSales } from "@/hooks/use-sales";
@@ -38,6 +39,8 @@ export default function HomePage() {
 
   const netTodaysSales = todaysSalesTotal + todaysPaymentsTotal - todaysPurchasesTotal - todaysExpensesTotal;
 
+  const [showProfit, setShowProfit] = React.useState(false);
+
   const totalUdhar = customers?.reduce((sum, c) => sum + Number(c.totalBalance), 0) || 0;
 
   const recentSales = todaysSales;
@@ -64,7 +67,10 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <Card className="primary-gradient border-none card-3d overflow-hidden ring-4 ring-blue-500/20">
+          <Card 
+            className="primary-gradient border-none card-3d overflow-hidden ring-4 ring-blue-500/20 cursor-pointer active:scale-95 transition-transform"
+            onClick={() => setShowProfit(!showProfit)}
+          >
             <CardContent className="p-5 flex flex-col justify-between h-40 relative">
               <div className="absolute top-0 right-0 p-8 opacity-20 transform rotate-12 translate-x-4 -translate-y-4">
                 <TrendingUp size={100} />
@@ -108,6 +114,36 @@ export default function HomePage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Profit Summary (Conditional) */}
+        {showProfit && (
+          <div className="grid grid-cols-1 gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
+            <Card className="bg-white dark:bg-slate-900 border-none card-3d overflow-hidden ring-4 ring-emerald-500/20">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-heading font-bold text-lg">Daily Profit Summary</h3>
+                  <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
+                    <TrendingUp className="h-5 w-5 text-emerald-600" />
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-dashed">
+                    <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Sales</span>
+                    <span className="font-bold text-green-600">Rs.{(todaysSalesTotal + todaysPaymentsTotal).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-dashed">
+                    <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Expenses</span>
+                    <span className="font-bold text-red-600">Rs.{(todaysPurchasesTotal + todaysExpensesTotal).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border-2 border-emerald-200 dark:border-emerald-800/50">
+                    <span className="text-base font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Net Profit</span>
+                    <span className="text-xl font-black text-emerald-600">Rs.{netTodaysSales.toLocaleString()}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Quick Actions */}
         <div className="grid grid-cols-3 gap-4">
